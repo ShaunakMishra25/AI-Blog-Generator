@@ -56,9 +56,9 @@ export default function Home() {
   }, [blogContent, isLoading]);
 
   return (
-    <main className="min-h-[44px] bg-white dark:bg-black px-4 sm:px-6 md:px-10 py-12 text-black dark:text-white transition-colors">
+    <main className="min-h-screen bg-gray-950 px-4 sm:px-6 md:px-10 py-12 text-gray-100 transition-colors">
       <div className="max-w-3xl mx-auto space-y-8">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
           📝 AI Blog Generator
         </h1>
 
@@ -68,26 +68,47 @@ export default function Home() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Enter your blog topic..."
-            className="flex-1 text-base md:text-lg border border-gray-300 dark:border-gray-600 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+            className="flex-1 text-base md:text-lg border border-gray-700 bg-gray-800 text-gray-100 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+            onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
           />
 
           <button
             onClick={handleGenerate}
-            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 shadow-md transition-all"
-          autoFocus>
-            {isLoading ? "Generating..." : "Generate"}
+            disabled={isLoading}
+            className={`w-full sm:w-auto px-6 py-3 rounded-lg shadow-md transition-all ${
+              isLoading
+                ? "bg-blue-700 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-500"
+            } text-white font-medium`}
+            autoFocus
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generating...
+              </span>
+            ) : (
+              "Generate"
+            )}
           </button>
         </div>
 
         <div className="mt-8">
-          {isLoading && (
-            <p className="text-gray-500 animate-pulse text-base">
-              Generating Blog...
-            </p>
+          {isLoading && !displayedContent && (
+            <div className="flex items-center gap-2 text-gray-400">
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Generating your blog...</span>
+            </div>
           )}
 
           {(displayedContent || isTyping) && (
-            <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-xl shadow-md whitespace-pre-line">
+            <div className="bg-gray-800 border border-gray-700 p-6 rounded-xl shadow-md whitespace-pre-line">
               {displayedContent.split("\n").map((line, idx) => {
                 const formatBoldText = (text: string) =>
                   text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
@@ -96,7 +117,7 @@ export default function Home() {
                   return (
                     <h3
                       key={idx}
-                      className="text-lg font-semibold mt-3 mb-2"
+                      className="text-lg font-semibold mt-3 mb-2 text-blue-300"
                       dangerouslySetInnerHTML={{
                         __html: formatBoldText(line.replace(/^#{3,}\s*/, "")),
                       }}
@@ -107,7 +128,7 @@ export default function Home() {
                   return (
                     <h2
                       key={idx}
-                      className="text-xl font-semibold mt-4 mb-2"
+                      className="text-xl font-semibold mt-4 mb-2 text-blue-400"
                       dangerouslySetInnerHTML={{
                         __html: formatBoldText(line.replace(/^#{2,}\s*/, "")),
                       }}
@@ -118,7 +139,7 @@ export default function Home() {
                   return (
                     <h1
                       key={idx}
-                      className="text-2xl font-bold mt-6 mb-3"
+                      className="text-2xl font-bold mt-6 mb-3 text-blue-500"
                       dangerouslySetInnerHTML={{
                         __html: formatBoldText(line.replace(/^#{1,}\s*/, "")),
                       }}
@@ -129,7 +150,7 @@ export default function Home() {
                 return (
                   <p
                     key={idx}
-                    className="mb-3 leading-relaxed"
+                    className="mb-3 leading-relaxed text-gray-300"
                     dangerouslySetInnerHTML={{
                       __html: formatBoldText(line),
                     }}
@@ -137,7 +158,7 @@ export default function Home() {
                 );
               })}
               {isTyping && (
-                <span className="inline-block animate-pulse ml-1">...</span>
+                <span className="inline-block w-2 h-4 ml-1 bg-blue-500 animate-pulse"></span>
               )}
             </div>
           )}
