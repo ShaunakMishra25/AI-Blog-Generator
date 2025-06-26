@@ -1,103 +1,148 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [topic, setTopic] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [blogContent, setBlogContent] = useState("");
+  const [displayedContent, setDisplayedContent] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleGenerate = async () => {
+    if (!topic.trim()) return;
+
+    setIsLoading(true);
+    setBlogContent("");
+    setDisplayedContent("");
+    setIsTyping(false);
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ topic }),
+      });
+
+      const data = await res.json();
+      setBlogContent(data.blog);
+    } catch (err) {
+      console.error("Error Generating blog:", err);
+      setBlogContent("❌ Failed to generate blog. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (blogContent && !isLoading) {
+      setIsTyping(true);
+      setDisplayedContent("");
+      let currentIndex = 0;
+
+      const typeInterval = setInterval(() => {
+        if (currentIndex < blogContent.length) {
+          setDisplayedContent(blogContent.slice(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          setIsTyping(false);
+          clearInterval(typeInterval);
+        }
+      }, 8);
+
+      return () => clearInterval(typeInterval);
+    }
+  }, [blogContent, isLoading]);
+
+  return (
+    <main className="min-h-[44px] bg-white dark:bg-black px-4 sm:px-6 md:px-10 py-12 text-black dark:text-white transition-colors">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+          📝 AI Blog Generator
+        </h1>
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <input
+            type="text"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Enter your blog topic..."
+            className="flex-1 text-base md:text-lg border border-gray-300 dark:border-gray-600 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+          />
+
+          <button
+            onClick={handleGenerate}
+            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 shadow-md transition-all"
+          autoFocus>
+            {isLoading ? "Generating..." : "Generate"}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="mt-8">
+          {isLoading && (
+            <p className="text-gray-500 animate-pulse text-base">
+              Generating Blog...
+            </p>
+          )}
+
+          {(displayedContent || isTyping) && (
+            <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-xl shadow-md whitespace-pre-line">
+              {displayedContent.split("\n").map((line, idx) => {
+                const formatBoldText = (text: string) =>
+                  text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+                if (line.match(/^#{3,}\s*/)) {
+                  return (
+                    <h3
+                      key={idx}
+                      className="text-lg font-semibold mt-3 mb-2"
+                      dangerouslySetInnerHTML={{
+                        __html: formatBoldText(line.replace(/^#{3,}\s*/, "")),
+                      }}
+                    />
+                  );
+                }
+                if (line.match(/^#{2}\s*/)) {
+                  return (
+                    <h2
+                      key={idx}
+                      className="text-xl font-semibold mt-4 mb-2"
+                      dangerouslySetInnerHTML={{
+                        __html: formatBoldText(line.replace(/^#{2,}\s*/, "")),
+                      }}
+                    />
+                  );
+                }
+                if (line.match(/^#{1}\s*/)) {
+                  return (
+                    <h1
+                      key={idx}
+                      className="text-2xl font-bold mt-6 mb-3"
+                      dangerouslySetInnerHTML={{
+                        __html: formatBoldText(line.replace(/^#{1,}\s*/, "")),
+                      }}
+                    />
+                  );
+                }
+
+                return (
+                  <p
+                    key={idx}
+                    className="mb-3 leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: formatBoldText(line),
+                    }}
+                  />
+                );
+              })}
+              {isTyping && (
+                <span className="inline-block animate-pulse ml-1">...</span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
   );
 }
