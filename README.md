@@ -1,4 +1,4 @@
-# 📝 GPT Blog Generator
+# 📝 AI Blog Generator
 
 An AI-powered blog generator built with **Next.js 14**, **Tailwind CSS**, and **OpenRouter's GPT API (DeepSeek)**. Enter a topic, and get a full-length, SEO-friendly blog post with headings, structured content, and formatting — instantly.
 
